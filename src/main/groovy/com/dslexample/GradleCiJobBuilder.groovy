@@ -10,7 +10,7 @@ class GradleCiJobBuilder {
 
     String name
     String description
-    String gitUrl
+    String ownerAndProject
     String gitBranch = 'master'
     String pollScmSchedule = '@daily'
     String tasks
@@ -18,26 +18,29 @@ class GradleCiJobBuilder {
     Boolean useWrapper = true
     String junitResults = '**/build/test-results/*.xml'
     String artifacts = '**/build/libs/*.jar'
-    List mailerRecipients = []
+    List<String> emails = []
 
     Job build(DslFactory dslFactory) {
-        dslFactory.job {
-            it.name this.name
+        dslFactory.job(name) {
             it.description this.description
-            logRotator(-1, 5, -1, -1)
+            logRotator {
+                numToKeep 5
+            }
             scm {
-                git this.gitUrl, gitBranch
+                github this.ownerAndProject, gitBranch
             }
             triggers {
                 scm pollScmSchedule
             }
             steps {
-                gradle(tasks, switches, useWrapper)
+                gradle tasks, switches, useWrapper
             }
             publishers {
                 archiveArtifacts artifacts
                 archiveJunit junitResults
-                mailer(mailerRecipients.join(' '), false, true)
+                if (emails) {
+                    mailer emails.join(' ')
+                }
             }
         }
     }

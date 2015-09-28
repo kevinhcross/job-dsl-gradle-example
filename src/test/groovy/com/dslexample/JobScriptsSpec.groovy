@@ -3,6 +3,7 @@ package com.dslexample
 import groovy.io.FileType
 import javaposse.jobdsl.dsl.DslScriptLoader
 import javaposse.jobdsl.dsl.JobManagement
+import javaposse.jobdsl.dsl.MemoryJobManagement
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -14,10 +15,10 @@ class JobScriptsSpec extends Specification {
     @Unroll
     void 'test script #file.name'(File file) {
         given:
-        JobManagement jm = Mock(JobManagement)
-        jm.getOutputStream() >> System.out
-        jm.getParameters() >> [:]
-        jm.createOrUpdateConfig(* _) >> true
+        JobManagement jm = new MemoryJobManagement()
+        new File('resources').eachFileRecurse(FileType.FILES) {
+            jm.availableFiles[it.path.replaceAll('\\\\', '/')] = it.text
+        }
 
         when:
         DslScriptLoader.runDslEngine file.text, jm
@@ -32,10 +33,11 @@ class JobScriptsSpec extends Specification {
     static List<File> getJobFiles() {
         List<File> files = []
         new File('jobs').eachFileRecurse(FileType.FILES) {
-            files << it
+            if (it.name.endsWith('.groovy')) {
+                files << it
+            }
         }
         files
     }
-
 }
 
