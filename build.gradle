@@ -34,6 +34,13 @@ task rest(dependsOn: 'classes', type: JavaExec) {
     systemProperties System.getProperties()
 }
 
+task localXml(type: JavaExec, dependsOn: 'classes') {
+  main = 'javaposse.jobdsl.Run'
+  classpath sourceSets.main.runtimeClasspath
+  workingDir buildDir
+  args "${projectDir}/${targetScript}"
+}
+
 task wrapper(type: Wrapper) {
     gradleVersion = '2.4'
 }

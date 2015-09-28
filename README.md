@@ -59,3 +59,12 @@ DSL outside of the Jenkins environment or if you want to create the seed job fro
 * `baseUrl` - base URL of Jenkins server
 * `username` - Jenkins username, if secured
 * `password` - Jenkins password or token, if secured
+
+## Create local Jenkins XML
+
+The `localXml` task can be used to create a local copy of the Jenkins XML job file. This can be useful if you are 
+migrating an existing job and you want to verify the output of your DSL script.
+
+    ./gradlew localXml -PtargetScript=jobs/example7Jobs.groovy
+
+The default `targetScript` is set in the `gradle.properties` file.
