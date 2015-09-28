@@ -34,7 +34,7 @@ task rest(dependsOn: 'classes', type: JavaExec) {
     systemProperties System.getProperties()
 }
 
-task localXml(type: JavaExec, dependsOn: 'classes') {
+task localXml(description: 'create local copies of the Jenkins XML job file', type: JavaExec, dependsOn: 'classes') {
   main = 'javaposse.jobdsl.Run'
   classpath sourceSets.main.runtimeClasspath
   workingDir buildDir
