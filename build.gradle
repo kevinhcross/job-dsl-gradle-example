@@ -1,9 +1,13 @@
 apply plugin: 'groovy'
 
+ext {
+    jobScriptDir = 'jobs'
+}
+
 sourceSets {
     jobs {
         groovy {
-            srcDirs 'jobs'
+            srcDirs jobScriptDir
         }
     }
 }
@@ -34,11 +38,28 @@ task rest(dependsOn: 'classes', type: JavaExec) {
     systemProperties System.getProperties()
 }
 
-task localXml(description: 'create local copies of the Jenkins XML job file', type: JavaExec, dependsOn: 'classes') {
-  main = 'javaposse.jobdsl.Run'
-  classpath sourceSets.main.runtimeClasspath
-  workingDir buildDir
-  args "${projectDir}/${targetScript}"
+file(jobScriptDir).eachFile { File targetScript ->
+  task "createLocalXml-${targetScript.name}"(description: "create local copies of the Jenkins XML job file from jobs/${targetScript.name}",
+      type: JavaExec, dependsOn: ['classes']) {
+    main = 'javaposse.jobdsl.Run'
+    classpath sourceSets.main.runtimeClasspath
+    // You can uncomment this line and the output will go in the build directory but then example6Jobs.groovy will fail
+    //workingDir buildDir
+    args targetScript
+  }
+}
+
+task createLocalXmlAll(dependsOn: ['build'],
+  description: "Create local XML files for all scripts in $jobScriptDir") << {
+  file(jobScriptDir).eachFile { File targetScript ->
+    javaexec {
+      main = 'javaposse.jobdsl.Run'
+      classpath sourceSets.main.runtimeClasspath
+      // You can uncomment this line and the output will go in the build directory but then example6Jobs.groovy will fail
+      //workingDir buildDir
+      args targetScript
+    }
+  }
 }
 
 task wrapper(type: Wrapper) {
