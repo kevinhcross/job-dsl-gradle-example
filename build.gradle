@@ -44,7 +44,7 @@ file(jobScriptDir).eachFile { File targetScript ->
     main = 'javaposse.jobdsl.Run'
     classpath sourceSets.main.runtimeClasspath
     // You can uncomment this line and the output will go in the build directory but then example6Jobs.groovy will fail
-    //workingDir buildDir
+    workingDir buildDir
     args targetScript
   }
 }
@@ -56,7 +56,7 @@ task createLocalXmlAll(dependsOn: ['build'],
       main = 'javaposse.jobdsl.Run'
       classpath sourceSets.main.runtimeClasspath
       // You can uncomment this line and the output will go in the build directory but then example6Jobs.groovy will fail
-      //workingDir buildDir
+      workingDir buildDir
       args targetScript
     }
   }
