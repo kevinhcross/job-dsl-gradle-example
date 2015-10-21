@@ -2,6 +2,7 @@ apply plugin: 'groovy'
 
 ext {
     jobScriptDir = 'jobs'
+    xmlOutputDir = "${buildDir}/jobXml"
 }
 
 sourceSets {
@@ -20,7 +21,7 @@ repositories {
 
 dependencies {
     compile 'org.codehaus.groovy:groovy:2.1.3'
-    compile 'org.jenkins-ci.plugins:job-dsl-core:1.38'
+    compile 'org.jenkins-ci.plugins:job-dsl-core:1.39'
     testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
         exclude module: 'groovy-all'
     }
@@ -49,14 +50,19 @@ file(jobScriptDir).eachFile { File targetScript ->
   }
 }
 
-task createLocalXmlAll(dependsOn: ['build'],
+task jobXmlResources(description: "Copy the resources directory into the working folder so test job creating job XML can find them.", type: Copy) {
+  from 'resources'
+  into "${xmlOutputDir}/resources"
+}
+
+task createLocalXmlAll(dependsOn: [jobXmlResources, 'build'],
   description: "Create local XML files for all scripts in $jobScriptDir") << {
   file(jobScriptDir).eachFile { File targetScript ->
     javaexec {
       main = 'javaposse.jobdsl.Run'
       classpath sourceSets.main.runtimeClasspath
       // You can uncomment this line and the output will go in the build directory but then example6Jobs.groovy will fail
-      workingDir buildDir
+      workingDir xmlOutputDir
       args targetScript
     }
   }
