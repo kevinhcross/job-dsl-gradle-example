@@ -3,6 +3,7 @@ apply plugin: 'groovy'
 ext {
     jobScriptDir = 'jobs'
     xmlOutputDir = "${buildDir}/jobXml"
+    xmlJobNames = []
 }
 
 sourceSets {
@@ -39,34 +40,25 @@ task rest(dependsOn: 'classes', type: JavaExec) {
     systemProperties System.getProperties()
 }
 
-file(jobScriptDir).eachFile { File targetScript ->
-  task "createLocalXml-${targetScript.name}"(description: "create local copies of the Jenkins XML job file from jobs/${targetScript.name}",
-      type: JavaExec, dependsOn: ['classes']) {
-    main = 'javaposse.jobdsl.Run'
-    classpath sourceSets.main.runtimeClasspath
-    // You can uncomment this line and the output will go in the build directory but then example6Jobs.groovy will fail
-    workingDir buildDir
-    args targetScript
-  }
-}
-
 task jobXmlResources(description: "Copy the resources directory into the working folder so test job creating job XML can find them.", type: Copy) {
-  from 'resources'
-  into "${xmlOutputDir}/resources"
+    from 'resources'
+    into "${xmlOutputDir}/resources"
 }
 
-task createLocalXmlAll(dependsOn: [jobXmlResources, 'build'],
-  description: "Create local XML files for all scripts in $jobScriptDir") << {
-  file(jobScriptDir).eachFile { File targetScript ->
-    javaexec {
-      main = 'javaposse.jobdsl.Run'
-      classpath sourceSets.main.runtimeClasspath
-      // You can uncomment this line and the output will go in the build directory but then example6Jobs.groovy will fail
-      workingDir xmlOutputDir
-      args targetScript
+file(jobScriptDir).eachFile { File targetScript ->
+    def xmlJobName = "createLocalXml-${targetScript.name}"
+    xmlJobNames << xmlJobName
+    task "$xmlJobName"(description: "create local copies of the Jenkins XML job file from jobs/${targetScript.name}",
+        type: JavaExec, dependsOn: ['classes', 'jobXmlResources']) {
+        main = 'javaposse.jobdsl.Run'
+        classpath sourceSets.main.runtimeClasspath
+        workingDir xmlOutputDir
+        args targetScript
     }
-  }
 }
+
+task createLocalXmlAll(dependsOn: xmlJobNames,
+    description: "Create local XML files for all scripts in $jobScriptDir")
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.4'
