@@ -16,6 +16,11 @@ class JobScriptsSpec extends Specification {
     void 'test script #file.name'(File file) {
         given:
         JobManagement jm = new MemoryJobManagement()
+
+        // GIT_URL is required for example1Jobs.groovy to be tested
+        jm.parameters.put('GIT_URL', 'git@github.com:kevinhcross/job-dsl-gradle-example.git')
+        jm.parameters.put('GIT_BRANCH', 'branch-a')
+
         new File('resources').eachFileRecurse(FileType.FILES) {
             jm.availableFiles[it.path.replaceAll('\\\\', '/')] = it.text
         }

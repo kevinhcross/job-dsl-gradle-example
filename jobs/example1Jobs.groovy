@@ -5,6 +5,9 @@ folder(basePath) {
     description 'This example shows basic folder/job creation.'
 }
 
+println "GIT_URL = ${GIT_URL}"
+println "GIT_BRANCH = ${GIT_BRANCH}"
+
 job("$basePath/grails-example-build") {
     scm {
         github repo
