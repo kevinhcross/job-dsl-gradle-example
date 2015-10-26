@@ -1,4 +1,4 @@
-def nameVar = "khc123"
+def nameVar = "example8"
 def jobName = "$nameVar-test-job"
 def folderName = "$nameVar-test-folder"
 def listViewName = "$nameVar-test-list-view"
